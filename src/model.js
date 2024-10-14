@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 import onChange from 'on-change';
 import _ from 'lodash';
+import i18n from 'i18next';
 
 const schema = yup.string().url();
 
@@ -20,11 +21,11 @@ export default class Model {
       try {
         schema.validateSync(url, { abortEarly: false });
         if (this.state.input.currentFeeds.includes(url)) {
-          return 'RSS уже существует';
+          return i18n.t('input.duplicate');
         };
         return null;
       } catch (e) {
-        return e.inner[0].message;
+        return i18n.t('input.invalid');
       }
     }
 
