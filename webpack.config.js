@@ -15,7 +15,16 @@ export default {
       directory: path.join(__dirname, 'dist'),
     },
     port: 9090,
-    open: true
+    open: true,
+    // proxy: [
+    //   {
+    //     target: 'http://localhost:3000',
+    //     changeOrigin: true,
+    //     pathRewrite: function(path, req) {
+    //       return `https://allorigins.hexlet.app/get?disableCache=true&url=${path}`
+    //     }
+    //   }
+    // ]
   },
   module: {
     rules: [
@@ -44,6 +53,17 @@ export default {
       },
     ],
   },
+  ignoreWarnings: [
+    {
+      module: /module2\.js\?[34]/, // A RegExp
+    },
+    {
+      module: /[13]/,
+      message: /homepage/,
+    },
+    /warning from compiler/,
+    (warning) => true,
+  ],
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/index.html',
