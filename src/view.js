@@ -16,7 +16,7 @@ export default class View {
     }
 
     renderInput = (state) => {
-        if (state.input.isValid) {
+        if (!state.input.error) {
             this.input.classList.remove('is-invalid');
             this.textDangerParagraph.textContent = i18n.t('input.valid');
             this.form.reset();
@@ -45,20 +45,23 @@ export default class View {
                 this.feeds.appendChild(feedsContainer);
             }
             const feedList = this.feeds.querySelector('.list-group');
-            state.feeds.filter(feed => !feed.isShown).forEach(feed => {
-                const feedContainer = document.createElement('li');
-                feedContainer.classList.add('list-group-item', 'border-0', 'border-end-0');
-                const feedTitle = document.createElement('h3');
-                feedTitle.classList.add('h6', 'm-0');
-                feedTitle.textContent = feed.title;
-                const feedDescription = document.createElement('p');
-                feedDescription.classList.add('m-0', 'small', 'text-black-50');
-                feedDescription.textContent = feed.description;
+            Object.values(state.feeds)
+                .filter(feed => feed.status === 'new')
+                .forEach(feed => {
+                    const feedContainer = document.createElement('li');
+                    feedContainer.classList.add('list-group-item', 'border-0', 'border-end-0');
+                    const feedTitle = document.createElement('h3');
+                    feedTitle.classList.add('h6', 'm-0');
+                    feedTitle.textContent = feed.title;
+                    const feedDescription = document.createElement('p');
+                    feedDescription.classList.add('m-0', 'small', 'text-black-50');
+                    feedDescription.textContent = feed.description;
 
-                feedContainer.appendChild(feedTitle);
-                feedContainer.appendChild(feedDescription);
-                feedList.appendChild(feedContainer);
-            });
+                    feedContainer.appendChild(feedTitle);
+                    feedContainer.appendChild(feedDescription);
+                    feedList.appendChild(feedContainer);
+                    feed.status = 'attached';
+                });
         }
 
 
@@ -83,9 +86,10 @@ export default class View {
                 this.posts.appendChild(postsContainer);
             }
             const postList = this.posts.querySelector('.list-group');
-            state.feeds
-                .filter(feed => !feed.isShown)
+            Object.values(state.feeds)
                 .flatMap(feed => feed.posts)
+                .flatMap(post => Object.values(post))
+                .filter(post => post.status === 'new')
                 .forEach(post => {
                     const id = _.uniqueId();
                     const postContainer = document.createElement('li');
@@ -108,6 +112,7 @@ export default class View {
                     postContainer.appendChild(postLink);
                     postContainer.appendChild(postButton);
                     postList.prepend(postContainer);
+                    post.status = 'attached';
             });
         }
     }

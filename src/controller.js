@@ -18,12 +18,20 @@ class Controller {
         return this;
     }
 
+    initRssObserving() {
+        const observeRss = this.model.observeRss.bind(this.model);
+        setTimeout(function repeate() {
+            observeRss();
+            setTimeout(repeate, 5000)
+        } , 5000);
+        return this;
+    }
+
     onInputChanged (event) {
         event.preventDefault(event);
         const { value } = event.target[0];
         this.model.handleInput(value);
-        // this.view.renderInput(this.model.state);
-      }
+    }
 }
 
 export default Controller;

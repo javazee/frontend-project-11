@@ -20,4 +20,5 @@ await i18next.init({
 
 new Controller(new Model(), new View())
     .initListeners()
-    .initRendering();
+    .initRendering()
+    .initRssObserving();
