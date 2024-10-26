@@ -9,10 +9,19 @@ export default class View {
         this.form = document.querySelector('.rss-form');
         this.feeds = document.querySelector('.feeds');
         this.posts = document.querySelector('.posts');
+        this.modal = document.querySelector('.modal');
     }
 
     bindInputEventListener(action, listener) {
         this.form.addEventListener(action, listener);
+    }
+
+    bindPostOpenListener(listener) {
+        this.onViewPost = listener;
+    }
+
+    bindPostCloseListener(listener) {
+        this.onClosePost = listener;
     }
 
     renderInput = (state) => {
@@ -68,7 +77,7 @@ export default class View {
     }
 
     renderPostColumn = (state) => {
-        if (state.feeds.length !== 0) {
+        if (state.posts.length !== 0) {
             if (!this.posts.hasChildNodes()) {
                 const postsContainer = document.createElement('div');
                 postsContainer.classList.add('card', 'border-0');
@@ -86,27 +95,24 @@ export default class View {
                 this.posts.appendChild(postsContainer);
             }
             const postList = this.posts.querySelector('.list-group');
-            Object.values(state.feeds)
-                .flatMap(feed => feed.posts)
-                .flatMap(post => Object.values(post))
-                .filter(post => post.status === 'new')
+            state.posts.filter(post => post.status === 'new')
                 .forEach(post => {
-                    const id = _.uniqueId();
                     const postContainer = document.createElement('li');
                     postContainer.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
                     const postLink = document.createElement('a');
                     postLink.classList.add('fw-bold');
-                    postLink.dataset.id = id;
+                    postLink.dataset.id = `title-${post.id}`;
                     postLink.target = '_blank';
                     postLink.rel = 'noopener noreferrer';
                     postLink.textContent = post.title;
                     const postButton = document.createElement('button');
                     postButton.classList.add('btn', 'btn-outline-primary', 'btn-sm');
                     postButton.type = this.button;
-                    postButton.dataset.id = id;
+                    postButton.dataset.id = _.uniqueId();
                     postButton.dataset.bsToggle = 'modal';
                     postButton.dataset.bsTarget = '#modal';
                     postButton.textContent = 'Просмотр';
+                    postButton.addEventListener('click', this.onViewPost(post.id));
 
 
                     postContainer.appendChild(postLink);
@@ -117,10 +123,48 @@ export default class View {
         }
     }
 
+    renderOnPostOpen(state) {
+        const postTitle = this.posts.querySelector(`[data-id=title-${state.lastOpenedPost}]`);
+        postTitle.classList.replace('fw-bold', 'fw-normal');
+        this.modal.classList.add('show');
+        const post = state.posts.find( ({ id }) => (state.lastOpenedPost === id));
+        const modalTitle = this.modal.querySelector('.modal-title');
+        modalTitle.textContent = post.title;
+        const modalbody = this.modal.querySelector('.modal-body');
+        modalbody.textContent = post.description;
+
+    }
+
+    renderOnPostClose(state) {
+        const title = this.posts.querySelector(`[data-id=title-${state.lastOpenedPost}]`);
+        title.classList.replace('fw-bold', 'fw-normal');
+    }
+
     render = (state) => (path, value, prev) =>  {
-        this.renderInput(state);
-        this.renderFeedColumn(state);
-        this.renderPostColumn(state);
+        switch (state.currentState) {
+            case 'input':
+                this.renderInput(state);
+            case 'new-feed':
+                this.renderInput(state);
+                this.renderFeedColumn(state);
+                this.renderPostColumn(state);
+                break;
+            case 'new-posts':
+                this.renderPostColumn(state);
+                break;
+            case 'post-open':
+                this.renderOnPostOpen(state);
+                break;
+            case 'post-close':
+                this.renderOnClosePost(state);
+                break;
+            case 'stable':
+                console.log('do nothing');
+                break;
+            default:
+                throw new Error(`unknown state '${state.currentEvent}'`);
+
+        }
     }
 }
 

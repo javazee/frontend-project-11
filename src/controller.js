@@ -10,6 +10,8 @@ class Controller {
 
     initListeners() {
         this.view.bindInputEventListener('submit', this.onInputChanged.bind(this));
+        this.view.bindPostOpenListener(this.onViewPost);
+        this.view.bindPostCloseListener(this.onClosePost);
         return this;
     }
 
@@ -31,6 +33,16 @@ class Controller {
         event.preventDefault(event);
         const { value } = event.target[0];
         this.model.handleInput(value);
+    }
+
+    onViewPost = (postId) => (event) => {
+        event.preventDefault();
+        this.model.handlePostReadEvent(postId)
+    }
+
+    onClosePost = (postId) => (event) => {
+        event.preventDefault();
+        this.model.handlePostCloseEvent(postId)
     }
 }
 

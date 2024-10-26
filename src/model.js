@@ -10,12 +10,15 @@ const schema = yup.string().url();
 export default class Model {
     constructor() {
       this.state = {
+        currentState: 'stable', //new-feed, new-posts, post-open, post-close, stable, input
+        lastOpenedPost: null,
         input: {
           value: '',
           error: null,
           isValid: true
         },
-        feeds: {}
+        feeds: {},
+        posts: []
       }
     }
 
@@ -32,12 +35,22 @@ export default class Model {
 
     onRssResponse(response, url) {
       const xmlBody = response.data.contents;
-      const recievedRssFeeds = parseRssDom(xmlBody);
-      const savedRssFeeds = this.state.feeds[url];
-      if (savedRssFeeds === null || savedRssFeeds === undefined) {
-        this.watchedState.feeds[url] = recievedRssFeeds;
+      const recievedData = parseRssDom(xmlBody);
+      const savedRssFeed = this.state.feeds[url];
+      if (!savedRssFeed) {
+        this.watchedState.feeds[url] = recievedData[0];
+        this.watchedState.posts = [...this.state.posts, recievedData[1]];
+        this.watchedState.currentState = 'new-feed';
       } else {
-        this.watchedState.feeds[url].posts = { ...recievedRssFeeds.posts, ...savedRssFeeds.posts }
+        const recievedPosts = recievedData[1];
+        const currentTitlePostForFeed = this.state.posts.filter(post => post.feed === savedRssFeed.title).map(post => post.title);
+        const newPosts = recievedPosts.filter(({ title }) => !currentTitlePostForFeed.includes(title)); 
+        if (newPosts.length > 0) {
+          this.watchedState.posts = [ ...this.state.posts, ...newPosts ];
+          this.watchedState.currentState = 'new-posts';
+        } else {
+          this.watchedState.currentState = 'stable';
+        }
       }
     }
 
@@ -60,9 +73,20 @@ export default class Model {
     handleInput (url) {
       this.watchedState.input.value = url;
       const errorDesc = this.validate(url);
+      this.watchedState.input.error = errorDesc;
+      this.watchedState.currentEvent = 'input';
       if (_.isEmpty(errorDesc)) {
         getFeeds(url, this.onRssResponse.bind(this), this.onError.bind(this));
       }
-      this.watchedState.input.error = errorDesc;
+    }
+
+    handlePostReadEvent (postId) {
+      this.watchedState.posts.find(post => post.id === postId).status = 'read';
+      this.watchedState.lastOpenedPost = postId;
+      this.watchedState.currentState = 'post-open';
+    }
+
+    handlePostCloseEvent () {
+      this.watchedState.currentState = 'post-close';
     }
 }
