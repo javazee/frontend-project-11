@@ -1,11 +1,23 @@
 import _ from 'lodash';
 import i18n from 'i18next';
 
+const createCardParentContainer = () => {
+    const cardContainer = document.createElement('div');
+    cardContainer.classList.add('card', 'border-0');
+    return cardContainer;
+}
+
+const createCardTitleContainer = () => {
+    const cardTitleContainer = document.createElement('div');
+    cardTitleContainer.classList.add(['card-body']);
+    return cardTitleContainer;
+}
+
 export default class View {
     constructor() {
         this.input = document.querySelector('#url-input');
         this.button = document.querySelector('.col-auto [aria-label=add]');
-        this.textDangerParagraph = document.querySelector('.text-danger');
+        this.textDangerParagraph = document.querySelector('.feedback');
         this.form = document.querySelector('.rss-form');
         this.feeds = document.querySelector('.feeds');
         this.posts = document.querySelector('.posts');
@@ -25,12 +37,14 @@ export default class View {
     }
 
     renderInput = (state) => {
-        if (!state.input.error) {
+        if (state.currentState !== 'input-error') {
             this.input.classList.remove('is-invalid');
+            this.textDangerParagraph.classList.replace('text-danger', 'text-success');
             this.textDangerParagraph.textContent = i18n.t('input.valid');
             this.form.reset();
         } else {
             this.input.classList.add('is-invalid');
+            this.textDangerParagraph.classList.replace('text-success', 'text-danger');
             this.textDangerParagraph.textContent = state.input.error;
         }
     }
@@ -38,13 +52,11 @@ export default class View {
     renderFeedColumn = (state) => {
         if (state.feeds.length !== 0) {
             if (!this.feeds.hasChildNodes()) {
-                const feedsContainer = document.createElement('div');
-                feedsContainer.classList.add('card', 'border-0');
-                const feedTitleContainer = document.createElement('div');
-                feedTitleContainer.classList.add(['card-body']);
+                const feedsContainer = createCardParentContainer();
+                const feedTitleContainer = createCardTitleContainer();
                 const feedTitle = document.createElement('h2');
                 feedTitle.classList.add('card-title', 'h4');
-                feedTitle.textContent = 'Фиды';
+                feedTitle.textContent = i18n.t('render.feedsTitle');;
                 const feedList = document.createElement('ul');
                 feedList.classList.add('list-group', 'border-0', 'rounded-0'); 
 
@@ -79,13 +91,11 @@ export default class View {
     renderPostColumn = (state) => {
         if (state.posts.length !== 0) {
             if (!this.posts.hasChildNodes()) {
-                const postsContainer = document.createElement('div');
-                postsContainer.classList.add('card', 'border-0');
-                const postTitleContainer = document.createElement('div');
-                postTitleContainer.classList.add(['card-body']);
+                const postsContainer = createCardParentContainer();
+                const postTitleContainer = createCardTitleContainer();
                 const postTitle = document.createElement('h2');
                 postTitle.classList.add('card-title', 'h4');
-                postTitle.textContent = 'Посты';
+                postTitle.textContent = i18n.t('render.postsTitle');
                 const postList = document.createElement('ul');
                 postList.classList.add('list-group', 'border-0', 'rounded-0'); 
 
@@ -111,7 +121,7 @@ export default class View {
                     postButton.dataset.id = _.uniqueId();
                     postButton.dataset.bsToggle = 'modal';
                     postButton.dataset.bsTarget = '#modal';
-                    postButton.textContent = 'Просмотр';
+                    postButton.textContent = i18n.t('render.postView');
                     postButton.addEventListener('click', this.onViewPost(post.id));
 
 
@@ -135,31 +145,23 @@ export default class View {
 
     }
 
-    renderOnPostClose(state) {
-        const title = this.posts.querySelector(`[data-id=title-${state.lastOpenedPost}]`);
-        title.classList.replace('fw-bold', 'fw-normal');
-    }
-
-    render = (state) => (path, value, prev) =>  {
+    render = (state) => () =>  {
         switch (state.currentState) {
-            case 'input':
+            case 'input-error':
                 this.renderInput(state);
-            case 'new-feed':
+                break;
+            case 'add-feed':
                 this.renderInput(state);
                 this.renderFeedColumn(state);
                 this.renderPostColumn(state);
                 break;
-            case 'new-posts':
+            case 'add-posts':
                 this.renderPostColumn(state);
                 break;
             case 'post-open':
                 this.renderOnPostOpen(state);
                 break;
-            case 'post-close':
-                this.renderOnClosePost(state);
-                break;
             case 'stable':
-                console.log('do nothing');
                 break;
             default:
                 throw new Error(`unknown state '${state.currentEvent}'`);

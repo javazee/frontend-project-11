@@ -6,6 +6,14 @@ export default {
                 invalid: 'Ссылка должна быть валидным URL',
                 duplicate: 'RSS уже существует'
             },
-            parsingRssError: 'Не удалось распрасить xml RSS'
+            errors: {
+                parsingRssError: 'Ресурс не содержит валидный RSS',
+                networkError: 'Ошибка сети',
+            },
+            render: {
+                postView: 'Просмотр',
+                feedsTitle: 'Фиды',
+                postsTitle: 'Посты'
+            }
         }
 }

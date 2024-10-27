@@ -8,16 +8,19 @@ class Controller {
         this.view = view;
     }
 
-    initListeners() {
+    start() {
+        this.initEventListeners();
+        this.initRendering();
+        this.initRssObserving();
+    }
+
+    initEventListeners() {
         this.view.bindInputEventListener('submit', this.onInputChanged.bind(this));
         this.view.bindPostOpenListener(this.onViewPost);
-        this.view.bindPostCloseListener(this.onClosePost);
-        return this;
     }
 
     initRendering() {
-        this.model.setRenderCallback(this.view.render.bind(this.view));
-        return this;
+        this.model.onChangeRender(this.view.render.bind(this.view));
     }
 
     initRssObserving() {
@@ -26,7 +29,6 @@ class Controller {
             observeRss();
             setTimeout(repeate, 5000)
         } , 5000);
-        return this;
     }
 
     onInputChanged (event) {
@@ -38,11 +40,6 @@ class Controller {
     onViewPost = (postId) => (event) => {
         event.preventDefault();
         this.model.handlePostReadEvent(postId)
-    }
-
-    onClosePost = (postId) => (event) => {
-        event.preventDefault();
-        this.model.handlePostCloseEvent(postId)
     }
 }
 

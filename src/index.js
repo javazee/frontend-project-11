@@ -18,7 +18,5 @@ await i18next.init({
   }
 );
 
-new Controller(new Model(), new View())
-    .initListeners()
-    .initRendering()
-    .initRssObserving();
+const controller = new Controller(new Model(), new View());
+controller.start();
