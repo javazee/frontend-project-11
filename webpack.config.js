@@ -1,11 +1,9 @@
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import path from 'path';
+import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
 
 export default {
   mode: process.env.NODE_ENV || 'development',
@@ -16,15 +14,6 @@ export default {
     },
     port: 9090,
     open: true,
-    // proxy: [
-    //   {
-    //     target: 'http://localhost:3000',
-    //     changeOrigin: true,
-    //     pathRewrite: function(path, req) {
-    //       return `https://allorigins.hexlet.app/get?disableCache=true&url=${path}`
-    //     }
-    //   }
-    // ]
   },
   module: {
     rules: [
@@ -62,7 +51,7 @@ export default {
       message: /homepage/,
     },
     /warning from compiler/,
-    (warning) => true,
+    () => true,
   ],
   plugins: [
     new HtmlWebpackPlugin({
