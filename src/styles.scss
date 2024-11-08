@@ -1,1 +1,14 @@
 @import "~bootstrap/scss/bootstrap";
+
+.example-shadow {
+    color: gray;
+}
+
+.modal.fade {
+    visibility: hidden;
+    display: none;
+}
+
+.modal.fade.show {
+    visibility: visible;
+}

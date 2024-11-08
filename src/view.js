@@ -24,12 +24,12 @@ export default class View {
         this.modal = document.querySelector('.modal');
     }
 
-    bindInputEventListener(action, listener) {
-        this.form.addEventListener(action, listener);
-    }
-
     bindPostOpenListener(listener) {
         this.onViewPost = listener;
+    }
+
+    bindPostClickListener(listener) {
+        this.onClickPost = listener;
     }
 
     bindPostCloseListener(listener) {
@@ -115,6 +115,8 @@ export default class View {
                     postLink.target = '_blank';
                     postLink.rel = 'noopener noreferrer';
                     postLink.textContent = post.title;
+                    postLink.href = post.link;
+                    postLink.addEventListener('click', this.onClickPost(post.id));
                     const postButton = document.createElement('button');
                     postButton.classList.add('btn', 'btn-outline-primary', 'btn-sm');
                     postButton.type = this.button;
@@ -136,13 +138,21 @@ export default class View {
     renderOnPostOpen(state) {
         const postTitle = this.posts.querySelector(`[data-id=title-${state.lastOpenedPost}]`);
         postTitle.classList.replace('fw-bold', 'fw-normal');
+        postTitle.classList.add('link-secondary');
         this.modal.classList.add('show');
         const post = state.posts.find( ({ id }) => (state.lastOpenedPost === id));
         const modalTitle = this.modal.querySelector('.modal-title');
         modalTitle.textContent = post.title;
         const modalbody = this.modal.querySelector('.modal-body');
         modalbody.textContent = post.description;
+        const modalOpenButton = this.modal.querySelector('.full-article');
+        modalOpenButton.href = post.link;
+    }
 
+    renderOnPostClick(state) {
+        const postTitle = this.posts.querySelector(`[data-id=title-${state.lastOpenedPost}]`);
+        postTitle.classList.replace('fw-bold', 'fw-normal');
+        postTitle.classList.add('link-secondary');
     }
 
     render = (state) => () =>  {
@@ -160,6 +170,9 @@ export default class View {
                 break;
             case 'post-open':
                 this.renderOnPostOpen(state);
+                break;
+            case 'post-click':
+                this.renderOnPostClick(state);
                 break;
             case 'stable':
                 break;

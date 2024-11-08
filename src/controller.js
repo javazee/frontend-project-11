@@ -15,8 +15,9 @@ class Controller {
     }
 
     initEventListeners() {
-        this.view.bindInputEventListener('submit', this.onInputChanged.bind(this));
+        this.view.form.addEventListener('submit', this.onInputChanged.bind(this));
         this.view.bindPostOpenListener(this.onViewPost);
+        this.view.bindPostClickListener(this.onClickPost);
     }
 
     initRendering() {
@@ -40,6 +41,10 @@ class Controller {
     onViewPost = (postId) => (event) => {
         event.preventDefault();
         this.model.handlePostReadEvent(postId)
+    }
+
+    onClickPost = (postId) => () => {
+        this.model.handlePostClickEvent(postId);
     }
 }
 

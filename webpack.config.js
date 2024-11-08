@@ -15,16 +15,7 @@ export default {
       directory: path.join(__dirname, 'dist'),
     },
     port: 9090,
-    open: true,
-    // proxy: [
-    //   {
-    //     target: 'http://localhost:3000',
-    //     changeOrigin: true,
-    //     pathRewrite: function(path, req) {
-    //       return `https://allorigins.hexlet.app/get?disableCache=true&url=${path}`
-    //     }
-    //   }
-    // ]
+    open: true
   },
   module: {
     rules: [

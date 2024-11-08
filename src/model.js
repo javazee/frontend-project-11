@@ -42,7 +42,7 @@ export default class Model {
     }
 
     onError(error) {
-      if (isNetworkError(error)) {
+      if (error.name === 'NetworkError' || error.message === 'Network Error' || isNetworkError(error)) {
         this.watchedState.input.error = i18n.t('errors.networkError');
       } else {
         this.watchedState.input.error = error.message;
@@ -92,5 +92,11 @@ export default class Model {
       this.watchedState.posts.find(post => post.id === postId).status = 'read';
       this.watchedState.lastOpenedPost = postId;
       this.watchedState.currentState = 'post-open';
+    }
+
+    handlePostClickEvent (postId) {
+      this.watchedState.posts.find(post => post.id === postId).status = 'read';
+      this.watchedState.lastOpenedPost = postId;
+      this.watchedState.currentState = 'post-click';
     }
 }

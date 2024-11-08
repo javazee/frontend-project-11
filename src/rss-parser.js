@@ -16,7 +16,7 @@ const parsePost = (el, feedTitle) => {
 
 const parse = (text) => {
     try {
-        const rssDom = parser.parseFromString(text, 'text/xml');
+        const rssDom = parser.parseFromString(text, 'application/xml');
         const feedTitle = rssDom.querySelector("title").textContent;
         const posts = [...rssDom.querySelectorAll("item")].reduce((agg, el) => [...agg, parsePost(el, feedTitle)], []).sort((a, b) => new Date(a.pubDate) - new Date(b.pubDate));
         const feed = {
